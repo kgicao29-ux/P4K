@@ -374,7 +374,9 @@ class Phim4KProvider : MainAPI() {
             GCMParameterSpec(128, iv),
         )
         val encrypted = cipher.doFinal("$secret:$date".toByteArray(StandardCharsets.UTF_8))
-        return "$date:${toHex(encrypted)}"
+        // The resolver signs with the original secret prefix. Prefixing the date
+        // creates a well-formed but rejected token that receives the demo clip.
+        return "$secret:${toHex(encrypted)}"
     }
 
     private fun hmacSha256(secret: String, value: String): ByteArray {
@@ -477,7 +479,9 @@ class Phim4KProvider : MainAPI() {
 
     companion object {
         private const val BASIC_AUTH = "Basic YWRtaW46MTIzNA=="
-        private const val API_USER_AGENT = "okhttp/4.12.0"
+        private const val API_USER_AGENT =
+            "Mozilla/5.0 (Linux; Android 13; SM-S901B) AppleWebKit/537.36 " +
+                "(KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36"
         private const val CONFIG_URL = "https://ltv.cryboiz.workers.dev/api/add"
         private const val CONFIG_SECRET = "8zP2mN7xR4vW9bQ1eC5yU0sI6tO3pA4f"
         private const val HMAC_SECRET = "5e8d1b4f9c2a6e730b1f8d4a92c5e3d1"

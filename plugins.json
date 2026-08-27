@@ -1,23 +1,18 @@
 [
-    {
-        "iconUrl": "https://raw.githubusercontent.com/p4kxyz/p4k/main/lg_player.png",
-        "fileHash": "sha256-04284bda76fb2a0749bc9adc62a89a6703ac6f53ebc7fcda4e82218ae5da9101",
-        "apiVersion": 1,
-        "repositoryUrl": "https://github.com/kgicao29-ux/P4K",
-        "fileSize": 45380,
-        "status": 1,
-        "language": "vi",
-        "authors": [
-            "Arena Agent"
-        ],
-        "tvTypes": [
-            "Movie",
-            "TvSeries"
-        ],
-        "version": 1,
-        "internalName": "Phim4K",
-        "description": "Phim4K API provider for Vietnamese movies and TV series",
-        "url": "https://raw.githubusercontent.com/kgicao29-ux/P4K/builds/Phim4K.cs3",
-        "name": "Phim4K"
-    }
+  {
+    "iconUrl": "https://raw.githubusercontent.com/p4kxyz/p4k/main/lg_player.png",
+    "fileHash": "sha256-4024b64e0da14f4ebcd8cbc418e0b2b98b9a0a157a1f49208ee34e63462a87e1",
+    "apiVersion": 1,
+    "repositoryUrl": "https://github.com/kgicao29-ux/P4K",
+    "fileSize": 45348,
+    "status": 1,
+    "language": "vi",
+    "authors": ["kgicao29-ux"],
+    "tvTypes": ["Movie", "TvSeries"],
+    "version": 2,
+    "internalName": "Phim4K",
+    "description": "Phim4K provider with rotating API and CDN configuration",
+    "url": "https://raw.githubusercontent.com/kgicao29-ux/P4K/builds/Phim4K.cs3",
+    "name": "Phim4K"
+  }
 ]

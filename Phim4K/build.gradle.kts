@@ -1,5 +1,5 @@
 // CloudStream Phim4K provider
-version = 3
+version = 4
 
 cloudstream {
     description = "Phim4K provider with rotating API and CDN configuration"

@@ -1,58 +1,79 @@
 name: Build
 
-# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#concurrency
-concurrency: 
-  group: "build"
-  cancel-in-progress: true
-
 on:
   push:
-    branches:
-      # choose your default branch
-      - master
-      - main
+    branches: [master, main]
     paths-ignore:
-      - '*.md'
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: p4k-builds
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
+      - name: Check out source
+        uses: actions/checkout@v7
         with:
-          path: "src"
+          path: src
+          fetch-depth: 1
 
-      - name: Checkout builds
-        uses: actions/checkout@master
+      - name: Check out published builds
+        uses: actions/checkout@v7
         with:
-          ref: "builds"
-          path: "builds"
-      
-      - name: Clean old builds
-        run: rm $GITHUB_WORKSPACE/builds/*.cs3
+          ref: builds
+          path: builds
+          fetch-depth: 1
 
-      - name: Setup JDK 17
-        uses: actions/setup-java@v1
+      - name: Set up JDK 17
+        uses: actions/setup-java@v6
         with:
-          java-version: 17
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: |
+            src/**/*.gradle*
+            src/gradle/wrapper/gradle-wrapper.properties
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
 
-      - name: Build Plugins
+      - name: Build extension
+        shell: bash
+        working-directory: src
         run: |
-          cd $GITHUB_WORKSPACE/src
+          set -euo pipefail
           chmod +x gradlew
-          ./gradlew make makePluginsJson
-          cp **/build/*.cs3 $GITHUB_WORKSPACE/builds
-          cp build/plugins.json $GITHUB_WORKSPACE/builds
+          ./gradlew --no-daemon make makePluginsJson
 
-      - name: Push builds
+          mapfile -t artifacts < <(find . -path '*/build/*.cs3' -type f -print)
+          if (( ${#artifacts[@]} == 0 )); then
+            echo 'No .cs3 file was produced.' >&2
+            exit 1
+          fi
+
+          rm -f "$GITHUB_WORKSPACE/builds/Phim4K.cs3"
+          cp "${artifacts[@]}" "$GITHUB_WORKSPACE/builds/"
+          cp build/plugins.json "$GITHUB_WORKSPACE/builds/plugins.json"
+
+      - name: Publish builds branch
+        shell: bash
+        working-directory: builds
         run: |
-          cd $GITHUB_WORKSPACE/builds
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          git add .
-          git commit --amend -m "Build $GITHUB_SHA" || exit 0   # do not error if nothing to commit
-          git push --force
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all
+          if git diff --cached --quiet; then
+            echo 'No build changes to publish.'
+            exit 0
+          fi
+          git commit -m "Build ${GITHUB_SHA}"
+          git push origin HEAD:builds

@@ -1,25 +1,44 @@
 # Phim4K CloudStream extension
 
-CloudStream provider reconstructed from the Android TV APK behind `aftv.news/3621883`
-(Phim4K 2.6.6).
+CloudStream provider for the Phim4K catalog. The provider obtains its API and
+CDN host configuration at runtime, so it does not rely on a single legacy host.
+
+## Install
+
+Add this repository in CloudStream using:
+
+```text
+https://raw.githubusercontent.com/kgicao29-ux/P4K/master/repo.json
+```
+
+Then install or update **Phim4K** from the repository list. If CloudStream has
+kept an older copy, remove the existing Phim4K extension, restart CloudStream,
+and install it again.
 
 ## Build
 
 Requires JDK 17 and an Android SDK with platform 35 installed.
 
 ```bash
-./gradlew Phim4KProvider:make
+./gradlew :Phim4K:make
 ```
 
-The output is `Phim4KProvider/build/Phim4KProvider.cs3`.
+The extension output is:
 
-## What it implements
+```text
+Phim4K/build/Phim4K.cs3
+```
 
-- Main pages: latest movies/series and weekly top movies/series
-- Movie and TV search
-- Movie details, seasons and episodes
-- Direct video links and subtitles
-- Runtime dynamic-host configuration
-- Phim4K CDN URL signing/resolution
+To also generate the repository metadata:
 
-Use only with content and services you are authorized to access.
+```bash
+./gradlew make makePluginsJson
+```
+
+## Publishing updates
+
+Increment `version` in `Phim4K/build.gradle.kts` whenever you publish a new
+extension. The GitHub Actions build publishes `Phim4K.cs3` and `plugins.json`
+to the `builds` branch.
+
+Use only content and services that you are authorized to access.

@@ -1,18 +1,23 @@
 [
-  {
-    "iconUrl": "https://raw.githubusercontent.com/p4kxyz/p4k/main/lg_player.png",
-    "fileHash": "sha256-4024b64e0da14f4ebcd8cbc418e0b2b98b9a0a157a1f49208ee34e63462a87e1",
-    "apiVersion": 1,
-    "repositoryUrl": "https://github.com/kgicao29-ux/P4K",
-    "fileSize": 45348,
-    "status": 1,
-    "language": "vi",
-    "authors": ["kgicao29-ux"],
-    "tvTypes": ["Movie", "TvSeries"],
-    "version": 2,
-    "internalName": "Phim4K",
-    "description": "Phim4K provider with rotating API and CDN configuration",
-    "url": "https://raw.githubusercontent.com/kgicao29-ux/P4K/builds/Phim4K.cs3",
-    "name": "Phim4K"
-  }
+    {
+        "iconUrl": "https://raw.githubusercontent.com/p4kxyz/p4k/main/lg_player.png",
+        "fileHash": "sha256-36afc3b9bda75d45b6f7d95c38159119d119e9138c6efb252c176daecf443eeb",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/kgicao29-ux/P4K",
+        "fileSize": 47782,
+        "status": 1,
+        "language": "vi",
+        "authors": [
+            "kgicao29-ux"
+        ],
+        "tvTypes": [
+            "Movie",
+            "TvSeries"
+        ],
+        "version": 3,
+        "internalName": "Phim4K",
+        "description": "Phim4K provider with rotating API and CDN configuration",
+        "url": "https://raw.githubusercontent.com/kgicao29-ux/P4K/builds/Phim4K.cs3",
+        "name": "Phim4K"
+    }
 ]

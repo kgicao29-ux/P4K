@@ -1,9 +1,9 @@
 // CloudStream Phim4K provider
-version = 1
+version = 2
 
 cloudstream {
-    description = "Phim4K API provider for Vietnamese movies and TV series"
-    authors = listOf("Arena Agent")
+    description = "Phim4K provider with rotating API and CDN configuration"
+    authors = listOf("kgicao29-ux")
     status = 1
     tvTypes = listOf("Movie", "TvSeries")
     language = "vi"

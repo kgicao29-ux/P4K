@@ -8,7 +8,6 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addDuration
 import com.lagradost.cloudstream3.LoadResponse.Companion.addScore
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.AppUtils.parseJson
-import com.lagradost.cloudstream3.utils.AppUtils.toJson
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.lagradost.cloudstream3.utils.Qualities
@@ -76,7 +75,8 @@ class Phim4KProvider : MainAPI() {
             )
         }
 
-        val items = apiList(path, params)
+        // A temporary API/configuration failure should not break the whole home page.
+        val items = runCatching { apiList(path, params) }.getOrElse { emptyList() }
         val results = items.mapNotNull { it.toSearchResponse(type) }
         return newHomePageResponse(
             HomePageList(request.name, results),
@@ -108,10 +108,12 @@ class Phim4KProvider : MainAPI() {
         val match = LOAD_URL.find(url) ?: return null
         val requestedType = match.groupValues[1]
         val id = match.groupValues[2]
-        val detail = apiObject<DetailResponse>(
-            "single_details",
-            mapOf("type" to requestedType, "id" to id),
-        )
+        val detail = runCatching {
+            apiObject<DetailResponse>(
+                "single_details",
+                mapOf("type" to requestedType, "id" to id),
+            )
+        }.getOrNull() ?: return null
         val isSeries = detail.isTvSeries == "1" || requestedType == "tvseries"
         val poster = detail.posterUrl ?: detail.thumbnailUrl
         val year = yearFrom(detail.release, detail.title)
@@ -261,17 +263,34 @@ class Phim4KProvider : MainAPI() {
     ): T = parseJson(apiGet(path, params))
 
     private suspend fun apiGet(path: String, params: Map<String, String>): String {
-        val config = dynamicConfig()
+        val initialConfig = dynamicConfig()
+        val initial = apiRequest(initialConfig, path, params)
+        if (initial.code !in CONFIG_REFRESH_STATUS_CODES) return initial.body
+
+        // Hosts and API tokens are issued by the app's configuration service. Refresh
+        // once when an authorization/host error indicates that the cached value rotated.
+        val refreshedConfig = dynamicConfig(forceRefresh = true)
+        if (refreshedConfig == initialConfig) return initial.body
+        return apiRequest(refreshedConfig, path, params).body
+    }
+
+    private suspend fun apiRequest(
+        config: DynamicData,
+        path: String,
+        params: Map<String, String>,
+    ): ApiFetchResult {
         val url = "https://${config.api}/rest-api/v130/$path"
-        return app.get(
+        val response = app.get(
             url = url,
             headers = mapOf(
                 "Accept" to "application/json",
+                "User-Agent" to API_USER_AGENT,
                 "API-KEY" to config.tokens,
                 "Authorization" to BASIC_AUTH,
             ),
             params = params,
-        ).text
+        )
+        return ApiFetchResult(response.code, response.text)
     }
 
     private fun CatalogItem.toSearchResponse(forcedType: TvType): SearchResponse? {
@@ -308,10 +327,25 @@ class Phim4KProvider : MainAPI() {
         val filename = runCatching {
             URI(originalUrl).path.substringAfterLast('/').trim()
         }.getOrNull()?.takeIf { it.isNotBlank() } ?: return null
-        val signedUrl = signedResolverUrl(filename, config.cdn)
+
+        resolveSignedStream(filename, config.cdn)?.let { return it }
+
+        // Retry against a newly fetched CDN host. This makes a playback attempt recover
+        // when the provider rotates its CDN after title metadata was loaded.
+        val refreshedConfig = dynamicConfig(forceRefresh = true)
+        if (refreshedConfig != config) {
+            return resolveSignedStream(filename, refreshedConfig.cdn)
+        }
+        return null
+    }
+
+    private suspend fun resolveSignedStream(filename: String, cdnHost: String): String? {
+        val signedUrl = signedResolverUrl(filename, cdnHost)
         return runCatching {
-            parseJson<SecureStreamResponse>(app.get(signedUrl).text).url
-        }.getOrNull()?.takeIf { it.isNotBlank() }
+            parseJson<SecureStreamResponse>(
+                app.get(signedUrl, headers = mapOf("User-Agent" to API_USER_AGENT)).text,
+            ).url
+        }.getOrNull()?.trim()?.takeIf { it.isNotBlank() }
     }
 
     private fun signedResolverUrl(filename: String, cdnHost: String): String {
@@ -356,9 +390,11 @@ class Phim4KProvider : MainAPI() {
         value.forEach { byte -> append(String.format(Locale.US, "%02x", byte.toInt() and 0xff)) }
     }
 
-    private suspend fun dynamicConfig(): DynamicData {
+    private suspend fun dynamicConfig(forceRefresh: Boolean = false): DynamicData {
         val now = System.currentTimeMillis()
-        cachedConfig?.takeIf { now - configLoadedAt < CONFIG_TTL_MS }?.let { return it }
+        if (!forceRefresh) {
+            cachedConfig?.takeIf { now - configLoadedAt < CONFIG_TTL_MS }?.let { return it }
+        }
 
         val loaded = runCatching {
             val encrypted = parseJson<EncryptedConfig>(app.get(CONFIG_URL).text)
@@ -441,6 +477,7 @@ class Phim4KProvider : MainAPI() {
 
     companion object {
         private const val BASIC_AUTH = "Basic YWRtaW46MTIzNA=="
+        private const val API_USER_AGENT = "okhttp/4.12.0"
         private const val CONFIG_URL = "https://ltv.cryboiz.workers.dev/api/add"
         private const val CONFIG_SECRET = "8zP2mN7xR4vW9bQ1eC5yU0sI6tO3pA4f"
         private const val HMAC_SECRET = "5e8d1b4f9c2a6e730b1f8d4a92c5e3d1"
@@ -458,12 +495,18 @@ class Phim4KProvider : MainAPI() {
         @Volatile
         private var configLoadedAt: Long = 0L
 
+        private val CONFIG_REFRESH_STATUS_CODES = setOf(401, 403, 404)
         private val LOAD_URL = Regex("/(movie|tvseries)/(\\d+)(?:[/?#]|$)", RegexOption.IGNORE_CASE)
         private val YEAR = Regex("(?:19|20)\\d{2}")
         private val SEASON = Regex("(?i)(?:season|s)\\s*0*(\\d+)")
         private val EPISODE = Regex("(?i)(?:s\\d{1,3})?e\\s*0*(\\d+)")
     }
 }
+
+private data class ApiFetchResult(
+    val code: Int,
+    val body: String,
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CatalogItem(

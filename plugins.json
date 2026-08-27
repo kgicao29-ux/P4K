@@ -1,10 +1,10 @@
 [
     {
         "iconUrl": "https://raw.githubusercontent.com/p4kxyz/p4k/main/lg_player.png",
-        "fileHash": "sha256-36afc3b9bda75d45b6f7d95c38159119d119e9138c6efb252c176daecf443eeb",
+        "fileHash": "sha256-01f92b0d8322ff60065f6012eadf077b0ecdadf040c68f7d491186c2e5dd27eb",
         "apiVersion": 1,
         "repositoryUrl": "https://github.com/kgicao29-ux/P4K",
-        "fileSize": 47782,
+        "fileSize": 47865,
         "status": 1,
         "language": "vi",
         "authors": [

@@ -1,16 +1,17 @@
 {
-  "tested_at_utc": "2026-08-27T06:56:41.628640+00:00",
-  "dynamic_config_http": 200,
+  "tested_at_utc": "2026-08-27T09:29:57+00:00",
   "api_host": "apip4k.dpdns.org",
   "cdn_host": "sv1.p4k.dpdns.org",
-  "catalog_http": 200,
-  "catalog_items": 24,
-  "sample_id": "17774",
-  "sample_title": "Tạm Biệt Gohan (2026) Gohan",
+  "dynamic_config_http": 200,
+  "movies_http": 200,
+  "movies_count": 24,
+  "tvseries_http": 200,
+  "tvseries_count": 24,
+  "search_http": 200,
+  "search_movie_count": 6,
   "detail_http": 200,
-  "source_count": 1,
+  "detail_has_sources": true,
   "resolver_http": 200,
-  "stream_http": 206,
-  "stream_content_type": "video/mp4",
-  "stream_range_bytes": 1024
+  "resolver_has_url": true,
+  "resolved_host": "sv1.p4k.dpdns.org"
 }

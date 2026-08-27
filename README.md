@@ -38,7 +38,8 @@ To also generate the repository metadata:
 ## Publishing updates
 
 Increment `version` in `Phim4K/build.gradle.kts` whenever you publish a new
-extension. The GitHub Actions build publishes `Phim4K.cs3` and `plugins.json`
-to the `builds` branch.
+extension. Commit the source changes to `master` only; the GitHub Actions build
+publishes `Phim4K.cs3` and `plugins.json` to `builds` automatically. Do not
+manually upload those two generated files while the workflow is running.
 
 Use only content and services that you are authorized to access.

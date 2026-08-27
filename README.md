@@ -1,6 +1,6 @@
-# Phim4K CloudStream extension
+# P4K CloudStream extension
 
-CloudStream provider for the Phim4K catalog. The provider obtains its API and
+CloudStream provider for the P4K catalog. The provider obtains its API and
 CDN host configuration at runtime, so it does not rely on a single legacy host.
 
 ## Install
@@ -11,8 +11,8 @@ Add this repository in CloudStream using:
 https://raw.githubusercontent.com/kgicao29-ux/P4K/master/repo.json
 ```
 
-Then install or update **Phim4K** from the repository list. If CloudStream has
-kept an older copy, remove the existing Phim4K extension, restart CloudStream,
+Then install or update **P4K** from the repository list. If CloudStream has
+kept an older copy, remove the existing P4K extension, restart CloudStream,
 and install it again.
 
 Version 4 corrects the signed CDN resolver that previously caused the short

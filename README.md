@@ -15,6 +15,9 @@ Then install or update **Phim4K** from the repository list. If CloudStream has
 kept an older copy, remove the existing Phim4K extension, restart CloudStream,
 and install it again.
 
+Version 4 corrects the signed CDN resolver that previously caused the short
+"old version" demo clip to be returned instead of the requested stream.
+
 ## Build
 
 Requires JDK 17 and an Android SDK with platform 35 installed.

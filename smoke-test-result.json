@@ -1,17 +1,15 @@
 {
-  "tested_at_utc": "2026-08-27T09:29:57+00:00",
-  "api_host": "apip4k.dpdns.org",
-  "cdn_host": "sv1.p4k.dpdns.org",
+  "tested_at_utc": "2026-08-27T10:18:00Z",
+  "extension_version": 4,
   "dynamic_config_http": 200,
   "movies_http": 200,
   "movies_count": 24,
   "tvseries_http": 200,
   "tvseries_count": 24,
   "search_http": 200,
-  "search_movie_count": 6,
   "detail_http": 200,
-  "detail_has_sources": true,
   "resolver_http": 200,
-  "resolver_has_url": true,
-  "resolved_host": "sv1.p4k.dpdns.org"
+  "stream_range_http": 206,
+  "stream_range_bytes": 1024,
+  "demo_proxy_detected": false
 }

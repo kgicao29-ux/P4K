@@ -2,16 +2,12 @@
 
 ## Design
 
-The extension follows the standard CloudStream structure used by providers such
-as the VegaMovies reference:
+The extension follows the usual CloudStream provider shape: module metadata, a
+plugin entry point that registers `MainAPI`, and a provider handling catalog,
+search, metadata, and `loadLinks`.
 
-- a module `build.gradle.kts` containing CloudStream metadata and a publishable version;
-- a plugin entry point that registers a `MainAPI`; and
-- a provider implementing main page, search, load, and `loadLinks`.
-
-Phim4K differs from a page-scraping provider: the Android client uses a JSON API
-and a rotating API/CDN configuration. The provider keeps that configuration
-refresh and resolves playback immediately before CloudStream opens a link.
+The Phim4K API uses rotating API/CDN configuration. It is not a page-scraping
+provider, so the configuration refresh and signed resolver are both necessary.
 
 ## Source and output
 
@@ -21,20 +17,34 @@ refresh and resolves playback immediately before CloudStream opens a link.
 - Plugin output: `Phim4K/build/Phim4K.cs3`
 - Generated metadata: `build/plugins.json`
 
-## Version 3 changes
+## Version 4 fix
 
-- Adds the app-compatible HTTP user agent for API and resolver requests.
-- Reloads rotating configuration once after authorization/host failures.
-- Retries the signed resolver once with a refreshed CDN host.
-- Returns an empty home page or `null` detail response on temporary API errors
-  instead of propagating a parsing failure.
-- Checks out `builds` after compilation in GitHub Actions, reducing publish
-  races with a manual `builds`-branch update.
+The signed resolver's daily key must be represented as:
+
+```text
+<original-secret>:<AES-GCM ciphertext-and-tag as hex>
+```
+
+The earlier Kotlin implementation used the date as the prefix. That creates a
+syntactically valid request but the CDN routes it to the short demo/"old
+version" clip. Version 4 uses the same secret-prefix and big-endian timestamp
+format as the working Nuvio addon.
+
+It also keeps the v3 resilience changes: an app-compatible request user agent,
+configuration refresh after auth/host errors, and one retry with a refreshed CDN
+host.
+
+## Verification
+
+On 2026-08-27, the live configuration, movie catalog, TV catalog, search,
+detail, signed resolver, and a 1 KiB range request all succeeded. The corrected
+resolver returned a real video response (`HTTP 206`) rather than the 1.3 MB
+demo-proxy response.
 
 ## Publish checklist
 
 1. Change source under `Phim4K/src/main/kotlin/`.
 2. Increment `version` in `Phim4K/build.gradle.kts`.
 3. Push to `master` and wait for the **Build** workflow.
-4. Confirm that `builds/Phim4K.cs3` and `builds/plugins.json` are updated together.
-5. Test the repository and title loading in a current CloudStream build.
+4. Confirm that `builds/Phim4K.cs3` and `builds/plugins.json` update together.
+5. Remove/reinstall the provider in CloudStream if its prior version is cached.

@@ -1,7 +1,7 @@
 [
     {
         "iconUrl": "https://raw.githubusercontent.com/p4kxyz/p4k/main/lg_player.png",
-        "fileHash": "sha256-01f92b0d8322ff60065f6012eadf077b0ecdadf040c68f7d491186c2e5dd27eb",
+        "fileHash": "sha256-cec1278f551a0e854cdd8c0169eb13faf9252ff97f7ed0b55bd9c18560c3c7d0",
         "apiVersion": 1,
         "repositoryUrl": "https://github.com/kgicao29-ux/P4K",
         "fileSize": 47865,
@@ -14,7 +14,7 @@
             "Movie",
             "TvSeries"
         ],
-        "version": 3,
+        "version": 4,
         "internalName": "Phim4K",
         "description": "Phim4K provider with rotating API and CDN configuration",
         "url": "https://raw.githubusercontent.com/kgicao29-ux/P4K/builds/Phim4K.cs3",

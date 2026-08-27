@@ -1,0 +1,8 @@
+{
+    "name": "Phim4K",
+    "description": "Phim4K",
+    "manifestVersion": 1,
+    "pluginLists": [
+      "https://raw.githubusercontent.com/kgicao29-ux/P4K/builds/plugins.json"
+    ]
+}
